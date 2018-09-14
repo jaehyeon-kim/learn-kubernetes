@@ -247,6 +247,11 @@ Connection: close
 Hello World!Connection closed by foreign host
 ====
 
+kubectl get service
+kubectl delete service nodehalloworld-service
+kubectl get pod
+kubectl delete pods nodehelloworld.example.com
+kubectl delete pods busybox
 ```
 
 ```
