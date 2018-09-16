@@ -192,6 +192,16 @@ kubectl delete service helloworld-deployment
 ## only works when DNS add-on is enabled
 ## later
 
+kubectl create -f helloworld.yml 
+#pod/nodehelloworld.example.com created
+
+
+
+
+
+
+
+
 
 
 
