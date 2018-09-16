@@ -1,0 +1,83 @@
+## node and yarn
+curl -sL https://deb.nodesource.com/setup_8.x -o nodesource_setup.sh \
+    && sudo bash nodesource_setup.sh \
+    && sudo apt-get install -y nodejs
+
+curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - \
+    && echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list \
+    && sudo apt-get update \
+    && sudo apt-get install -y yarn
+
+## chrome
+wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+sudo apt-get update \
+    & sudo apt-get -y install google-chrome-stable
+
+## vscode
+curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+sudo install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/
+sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
+
+sudo apt-get install -y apt-transport-https \
+    && sudo apt-get update \
+    && sudo apt-get install -y code # or code-insiders
+
+## docker
+sudo apt-get remove docker docker-engine docker.io
+sudo apt-get update && sudo apt-get install -y \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo apt-key fingerprint 0EBFCD88
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+sudo apt-get update && sudo apt-get install -y docker-ce
+
+sudo groupadd docker && sudo usermod -aG docker $USER
+sudo systemctl enable docker
+
+## docker compose
+sudo curl -L "https://github.com/docker/compose/releases/download/1.22.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+#sudo rm /usr/local/bin/docker-compose
+
+## R and RStudio
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
+sudo add-apt-repository 'deb https://ftp.ussg.iu.edu/CRAN/bin/linux/ubuntu xenial/' \
+    && sudo apt-get update \
+    && sudo apt-get install -y r-base r-base-dev
+
+rstudio_installer=rstudio-1.1.456-amd64.deb\
+    && sudo apt-get install -y gdebi-core \
+    && wget https://download1.rstudio.org/$rstudio_installer \
+    && sudo gdebi $rstudio_installer \
+    && rm $rstudio_installer
+
+docker run --name rstudio -it -p 8787:8787 talpep/base /bin/bash
+rstudio-server start
+
+#### kubernetes
+## virtualbox, minikube, kubectl
+sudo apt-get update \
+    && sudo apt-get install -y virtualbox virtualbox-ext-pack
+
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 \
+    && chmod +x minikube \
+    && sudo mv -v minikube /usr/local/bin
+
+sudo apt-get update \
+    && sudo apt-get install -y apt-transport-https
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+sudo touch /etc/apt/sources.list.d/kubernetes.list \
+    && echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update \
+    && sudo apt-get install -y kubectl
+
+docker version
+minikube version
+kubectl version

@@ -1,0 +1,140 @@
+pod
+* an app running on Kubernetes
+* can contain one or more tightly coupled containers, that make up the app
+** containers can easily communicate with each other using their local port number
+
+kubectl get node
+#NAME       STATUS    ROLES     AGE       VERSION
+#minikube   Ready     master    1d        v1.10.0
+
+kubectl create -f helloworld.yml
+#pod/nodehelloworld.example.com created
+
+kubectl get pod
+#NAME                         READY     STATUS              RESTARTS   AGE
+#nodehelloworld.example.com   0/1       ContainerCreating   0          41s
+
+kubectl describe pod nodehelloworld.example.com
+=====
+Name:         nodehelloworld.example.com
+Namespace:    default
+Node:         minikube/10.0.2.15
+Start Time:   Fri, 14 Sep 2018 01:49:26 -0700
+Labels:       app=helloworld
+Annotations:  <none>
+Status:       Running
+IP:           172.17.0.4
+Containers:
+  k8s-demo:
+    Container ID:   docker://fe5681e0da02b9320691ff017083dc2b742faf620ac23dd8432a28e6432fa571
+    Image:          wardviaene/k8s-demo
+    Image ID:       docker-pullable://wardviaene/k8s-demo@sha256:2c050f462f5d0b3a6430e7869bcdfe6ac48a447a89da79a56d0ef61460c7ab9e
+    Port:           3000/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Fri, 14 Sep 2018 01:58:38 -0700
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-xbz6m (ro)
+Conditions:
+  Type           Status
+  Initialized    True 
+  Ready          True 
+  PodScheduled   True 
+Volumes:
+  default-token-xbz6m:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-xbz6m
+    Optional:    false
+QoS Class:       BestEffort
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type    Reason                 Age   From               Message
+  ----    ------                 ----  ----               -------
+  Normal  Scheduled              10m   default-scheduler  Successfully assigned nodehelloworld.example.com to minikube
+  Normal  SuccessfulMountVolume  10m   kubelet, minikube  MountVolume.SetUp succeeded for volume "default-token-xbz6m"
+  Normal  Pulling                10m   kubelet, minikube  pulling image "wardviaene/k8s-demo"
+  Normal  Pulled                 58s   kubelet, minikube  Successfully pulled image "wardviaene/k8s-demo"
+  Normal  Created                51s   kubelet, minikube  Created container
+  Normal  Started                50s   kubelet, minikube  Started container
+=====
+
+(1)
+kubectl port-forward nodehelloworld.example.com 8081:3000
+#Forwarding from 127.0.0.1:8081 -> 3000
+#Forwarding from [::1]:8081 -> 3000
+
+curl localhost:8081
+
+(2)
+kubectl expose pod nodehelloworld.example.com --type=NodePort --name nodehelloworld-service
+#service/nodehaeloworld-service exposed
+
+kubectl get service
+#NAME                     TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+#kubernetes               ClusterIP   10.96.0.1       <none>        443/TCP          1d
+#nodehelloworld-service   NodePort    10.97.186.169   <none>        3000:30153/TCP   1m
+
+minikube service nodehelloworld-service --url
+#http://192.168.99.100:30153
+
+curl http://192.168.99.100:30153
+
+(3) ??
+kubectl create -f helloworld-service.yml
+
+kubectl get service
+minikube service helloworld-service --url
+
+
+
+kubectl attach nodehelloworld.example.com
+
+kubectl exec nodehelloworld.example.com -- ls /app
+kubectl exec nodehelloworld.example.com -- touch /app/test.txt ## not persistent, use volume for persistecy
+kubectl exec nodehelloworld.example.com -- ls /app
+
+kubectl get service
+kubectl describe service nodehelloworld-service
+=====
+Name:                     nodehelloworld-service
+Namespace:                default
+Labels:                   app=helloworld
+Annotations:              <none>
+Selector:                 app=helloworld
+Type:                     NodePort
+IP:                       10.97.186.169
+Port:                     <unset>  3000/TCP
+TargetPort:               3000/TCP
+NodePort:                 <unset>  30153/TCP
+Endpoints:                172.17.0.4:3000
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+=====
+
+kubectl run -i --tty busybox --image=busybox --restart=Never -- sh
+====
+/ # telnet 172.17.0.4 3000
+GET /
+
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: text/html; charset=utf-8
+Content-Length: 12
+ETag: W/"c-7Qdih1MuhjZehB6Sv8UNjA"
+Date: Fri, 14 Sep 2018 09:17:53 GMT
+Connection: close
+
+Hello World!Connection closed by foreign host
+====
+
+kubectl get service
+kubectl delete service nodehelloworld-service
+kubectl get pod
+kubectl delete pods nodehelloworld.example.com
+kubectl delete pods busybox

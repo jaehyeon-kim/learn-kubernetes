@@ -1,0 +1,31 @@
+https://darkowlzz.github.io/post/minikube-config/
+# https://12factor.net/
+minikube start --alsologtostderr --memory 4096
+Starting local Kubernetes v1.10.0 cluster...
+Starting VM...
+Downloading Minikube ISO
+ 160.27 MB / 160.27 MB [============================================] 100.00% 0s
+Getting VM IP address...
+Moving files into cluster...
+Downloading kubeadm v1.10.0
+Downloading kubelet v1.10.0
+Finished Downloading kubelet v1.10.0
+Finished Downloading kubeadm v1.10.0
+Connecting to cluster...
+Setting up kubeconfig...
+Starting cluster components...
+Kubectl is now configured to use the cluster.
+Loading cached images from config file.
+
+minikube status
+kubectl cluster-info
+minikube stop
+minikube start --memory 4096
+
+kubectl run hello-minikube --image=gcr.io/google_containers/echoserver:1.4 --port=8080
+# deployment "hello-minikube" created
+kubectl expose deployment hello-minikube --type=NodePort
+# service "hello-minikube" exposed
+kubectl get service
+minikube service hello-minikube --url
+# http://192.168.99.100:32765
