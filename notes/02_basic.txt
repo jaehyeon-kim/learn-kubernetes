@@ -1,1 +1,105 @@
-## replication controller
+#### replication controller
+# horizontal scaling
+# recover failed pod
+
+kubectl get node
+kubectl create -f helloworld-replication-controller.yml
+kubectl get pods
+#NAME                          READY     STATUS    RESTARTS   AGE
+#helloworld-controller-4h998   1/1       Running   0          11s
+#helloworld-controller-bfd9r   1/1       Running   0          11s
+
+kubectl describe pod helloworld-controller-4h998
+=====
+Name:           helloworld-controller-4h998
+Namespace:      default
+Node:           minikube/10.0.2.15
+Start Time:     Sun, 16 Sep 2018 03:15:43 -0700
+Labels:         app=helloworld
+Annotations:    <none>
+Status:         Running
+IP:             172.17.0.5
+Controlled By:  ReplicationController/helloworld-controller
+Containers:
+  k8s-demo:
+    Container ID:   docker://ecddc1639c5f765f8d1d294bd532a74c27d40437525faa75cb852bcc97259be0
+    Image:          wardviaene/k8s-demo
+    Image ID:       docker-pullable://wardviaene/k8s-demo@sha256:2c050f462f5d0b3a6430e7869bcdfe6ac48a447a89da79a56d0ef61460c7ab9e
+    Port:           3000/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Sun, 16 Sep 2018 03:15:52 -0700
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-xbz6m (ro)
+Conditions:
+  Type           Status
+  Initialized    True 
+  Ready          True 
+  PodScheduled   True 
+Volumes:
+  default-token-xbz6m:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-xbz6m
+    Optional:    false
+QoS Class:       BestEffort
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type    Reason                 Age   From               Message
+  ----    ------                 ----  ----               -------
+  Normal  Scheduled              1m    default-scheduler  Successfully assigned helloworld-controller-4h998 to minikube
+  Normal  SuccessfulMountVolume  1m    kubelet, minikube  MountVolume.SetUp succeeded for volume "default-token-xbz6m"
+  Normal  Pulling                1m    kubelet, minikube  pulling image "wardviaene/k8s-demo"
+  Normal  Pulled                 1m    kubelet, minikube  Successfully pulled image "wardviaene/k8s-demo"
+  Normal  Created                1m    kubelet, minikube  Created container
+  Normal  Started                1m    kubelet, minikube  Started container
+=====
+
+kubectl scale --replicas=4 -f helloworld-replication-controller.yml
+#replicationcontroller/helloworld-controller scaled
+
+kubectl get rc
+#NAME                    DESIRED   CURRENT   READY     AGE
+#helloworld-controller   4         4         4         8m
+
+kubectl scale --replicas=1 rc/helloworld-controller
+#replicationcontroller/helloworld-controller scaled
+
+kubectl delete rc/helloworld-controller
+#replicationcontroller "helloworld-controller" deleted
+
+#### deployments
+## replication controller vs replication set
+# replication set is the next generation replication controller
+# it supports a new selector that can do selection based on filtering according a set of values
+## "environment" either "dev" or "qa"
+## not only based on equality, like replication controller ("environment" == "dev")
+# replica set is used by deployment object
+
+## deployment declaration allows to do app deployments and updates
+# when using deployment object, state of app can be defined
+## kubernetes makes sure the clusters matches the desired state
+# replication controller or replication set might be cumbersome to deploy apps
+## deployment object is easier to use and gives more possibilities
+
+## what can be done
+# create a deployment
+# update a deployment
+# do rolling updates (zero downtime deployments)
+# roll back to a previous version
+# pause/resume a deployment (eg roll-out to only a certain percentage)
+
+kubectl get deployments
+kubectl get rs
+kubectl get pods --show-labels
+kubectl set image deployment/helloworld-deployment k8s-demo=k8s-demo:2
+kubectl edit deployment/helloworld-deployment
+kubectl rollout status deployment/helloworld-deployment
+kubectl rollout history deployment/helloworld-deployment
+kubectl rollout undo deployment/helloworld-deployment
+kubectl rollout undo deployment/helloworld-deployment --to-revision=n
+
