@@ -239,5 +239,16 @@ Events:                   <none>
 kubectl label nodes node1 hardware=high-spec
 kubectl label nodes node2 hardware=low-spec
 
+kubectl get nodes --show-labels
+kubectl label nodes minikube hardware=high-spec
+kubectl create -f helloworld-deployment-nodeselector.yml
+kubectl delete deployment helloworld-deployment
+
+#### health checks
+# 2 types
+## running a command in the container periodically
+## periodic checks on a URL (HTTP)
+
+
 
 
