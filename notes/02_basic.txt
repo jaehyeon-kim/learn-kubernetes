@@ -93,6 +93,7 @@ kubectl delete rc/helloworld-controller
 # roll back to a previous version
 # pause/resume a deployment (eg roll-out to only a certain percentage)
 
+=====
 kubectl get deployments
 kubectl get rs
 kubectl get pods --show-labels
@@ -102,4 +103,97 @@ kubectl rollout status deployment/helloworld-deployment
 kubectl rollout history deployment/helloworld-deployment
 kubectl rollout undo deployment/helloworld-deployment
 kubectl rollout undo deployment/helloworld-deployment --to-revision=n
+=====
+
+kubectl create -f helloworld-deployment.yml 
+#kubectl create -f helloworld-deployment.yml --record
+#deployment.extensions/helloworld-deployment created
+kubectl get deployments
+#NAME                    DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+#helloworld-deployment   2         2         2            2           12s
+kubectl get rs
+#NAME                               DESIRED   CURRENT   READY     AGE
+#helloworld-deployment-7c5fb67d9b   2         2         2         16s
+kubectl rollout status deployment/helloworld-deployment
+#deployment "helloworld-deployment" successfully rolled out
+
+kubectl expose deployment helloworld-deployment --type=NodePort
+#service/helloworld-deployment exposed
+kubectl get service
+#NAME                    TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)          AGE
+#helloworld-deployment   NodePort    10.103.62.7   <none>        3000:31408/TCP   8s
+#kubernetes              ClusterIP   10.96.0.1     <none>        443/TCP          3d
+kubectl describe service helloworld-deployment
+=====
+Name:                     helloworld-deployment
+Namespace:                default
+Labels:                   app=helloworld
+Annotations:              <none>
+Selector:                 app=helloworld
+Type:                     NodePort
+IP:                       10.103.62.7
+Port:                     <unset>  3000/TCP
+TargetPort:               3000/TCP
+NodePort:                 <unset>  31408/TCP
+Endpoints:                172.17.0.4:3000,172.17.0.5:3000
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+=====
+
+minikube service helloworld-deployment --url
+#http://192.168.99.100:31408
+
+curl http://192.168.99.100:31408
+#Hello World!
+
+kubectl set image deployment/helloworld-deployment k8s-demo=wardviaene/k8s-demo:2
+#deployment.extensions/helloworld-deployment image updated
+kubectl rollout status deployment/helloworld-deployment
+#deployment "helloworld-deployment" successfully rolled out
+
+curl http://192.168.99.100:31408
+#Hello World v2!
+
+kubectl rollout history deployment/helloworld-deployment
+#deployments "helloworld-deployment"
+#REVISION  CHANGE-CAUSE
+#1         <none>
+#2         <none>
+
+kubectl rollout undo deployment/helloworld-deployment
+#deployment.extensions/helloworld-deployment
+
+curl http://192.168.99.100:31408
+Hello World!
+
+kubectl delete deployment helloworld-deployment
+#deployment.extensions "helloworld-deployment" deleted
+kubectl delete service helloworld-deployment
+#service "helloworld-deployment" deleted
+
+#### services
+# pods are very dynamic, they come and go on the kubernetes cluster
+## when using replication controller, pods are terminated and created during scaling operations
+## when using deployments, when updating the image version, pods are terminated and new pods take the place of older pods
+# pods should never be accessed directly but always through a service
+# service is the local bridge between the mortal pods and other services or end-users
+# when using 'kubectl expose', a new service for a pod is created, which can be accessed externally
+# creating a service will create an endpoint for your pod(s)
+## ClusterIP - virtual ip address only reachable from within the cluster (default)
+## NodePort - port that's the same on each node and reachable externally
+## LoadBalancer - created by cloud provider that'll route external traffic to every node on it (eg ELB on AWS)
+## these options only allow to create virtual ips or ports
+# by default service can only run between ports 30000-32767 but can be changed by adding --service-node-port-range to kube-apiserver (in the init scripts)
+
+# another possibility is to use DNS names
+## ExternalName can provide a DNS name for the service
+## eg for service discovery using DNS
+## only works when DNS add-on is enabled
+## later
+
+
+
+
+
 
