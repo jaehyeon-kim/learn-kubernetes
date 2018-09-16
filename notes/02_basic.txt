@@ -194,16 +194,50 @@ kubectl delete service helloworld-deployment
 
 kubectl create -f helloworld.yml 
 #pod/nodehelloworld.example.com created
+kubectl create -f helloworld-nodeport-service.yml 
+#service/helloworld-service created
+minikube service helloworld-service --url
+#http://192.168.99.100:31001
 
+curl http://192.168.99.100:31001
+#Hello World!
 
+kubectl get services
+#NAME                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)           AGE
+#helloworld-service   NodePort    10.99.122.26   <none>        31001:31001/TCP   2m
+#kubernetes           ClusterIP   10.96.0.1      <none>        443/TCP           4d
 
+kubectl describe service helloworld-service
+=====
+Name:                     helloworld-service
+Namespace:                default
+Labels:                   <none>
+Annotations:              <none>
+Selector:                 app=helloworld
+Type:                     NodePort
+IP:                       10.99.122.26
+Port:                     <unset>  31001/TCP
+TargetPort:               nodejs-port/TCP
+NodePort:                 <unset>  31001/TCP
+Endpoints:                172.17.0.4:3000
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+=====
 
+#### labels
+# key value pairs
+## key: environment, value: dev/staging/qa/prod
+## key: department, value: engineering/finance/marketing
+# labels not unique and multiple labels can be added to one object
+# Label Selectors can be used to narrow down results
+# matching expressions can be used to match labels
+## eg particular pod can only run on a node labeled with 'environment' equals 'development'
+## eg more complex matching eg) 'environment' in 'development' or 'qa'
+## first tag the node and then add a nodeSelector to pod configuration
 
-
-
-
-
-
+kubectl label nodes node1 hardware=high-spec
+kubectl label nodes node2 hardware=low-spec
 
 
 
