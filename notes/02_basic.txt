@@ -273,16 +273,17 @@ kubectl create secret generic db-user-pass --from-file=./secrets/username.txt --
 kubectl create secret generic ssl-certificate --from-file=ssh-privatekey=~/.ssh/id_rsa --ssl-cert=ssl-sert=mysslcert.crt
 
 # yaml file
-secrets-db-secret.yml
+helloworld-secrets.yml
 
-kubectl create -f -f secrets-db-secret.yml
+kubectl create -f helloworld-secrets.yml
 
-# helloworld-pod-secrets-volume.yml
+# helloworld-deployment-secrets-volume.yml
 # credits will be stored in
 # /etc/creds/db-secret/username
 # /etc/creds/db-secret/password
 
-
+kubectl create -f helloworld-secrets.yml
+kubectl create -f helloworld-deployment-healthcheck-secrets-volume.yml 
 
 
 
