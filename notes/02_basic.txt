@@ -307,3 +307,29 @@ kubectl exec helloworld-deployment-56759bb87-82rk8 -it -- /bin/bash
 cat /etc/creds/username
 cat /etc/creds/password
 mount
+
+kubectl delete deployment helloworld-deployment
+kubectl delete secret db-secret
+
+
+kubectl create -f wordpress/wordpress-secrets.yml 
+kubectl create -f wordpress/wordpress-single-deployment-no-volumes.yml 
+#kubectl rollout status deployment/wordpress-deployment
+kubectl create -f wordpress/wordpress-service.yml
+
+minikube service wordpress-service --url
+#http://192.168.99.100:31001
+
+kubectl delete service wordpress-service
+kubectl delete deployment wordpress-deployments
+kubectl delete secret wordpress-secrets
+
+#### web ui
+# get an overview of running applications on cluster
+# creating/modifying individual kubernetes resources and workloads (like kubectl create/delete)
+# retrieve information on the state of resources (like kubectl describe)
+# can be accessed at https://<kubernetes-master>/ui
+## if not, can be installed manually using
+### kubectl create -f https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml
+## if password asked, retrieve it by entering kubectl config view
+## on minikube, 'minikube dashboard' to launch and 'minikube dashboard --url' for the url
