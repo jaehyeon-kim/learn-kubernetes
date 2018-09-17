@@ -285,6 +285,25 @@ kubectl create -f helloworld-secrets.yml
 kubectl create -f helloworld-secrets.yml
 kubectl create -f helloworld-deployment-healthcheck-secrets-volume.yml 
 
+kubectl describe pod helloworld-deployment-56759bb87-82rk8
+=====
+Containers:
+...
+    Mounts:
+      /etc/creds from credvolume (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-xbz6m (ro)
+Volumes:
+  credvolume:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  db-secret
+    Optional:    false
+  default-token-xbz6m:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-xbz6m
+    Optional:    false
+=====
 
-
-
+kubectl exec helloworld-deployment-56759bb87-82rk8 -it -- /bin/bash
+cat /etc/creds/username
+cat /etc/creds/password
+mount
