@@ -67,4 +67,46 @@ param.with.hierarchy=foo
 EOF
 kubectl create configmap app-config --from-file=app.properties
 
+kubectl create configmap nginx-config --from-file=configmap/reverseproxy.conf
+#kubectl describe configmap nginx-config
+#kubectl get configmap nginx-config -o yaml
+kubectl create -f configmap/nginx.yml
+kubectl create -f configmap/nginx-service.yml
+
+minikube service helloworld-nginx-service --url
+#http://192.168.99.100:31952
+curl http://192.168.99.100:31952 -v
+
+kubectl exec -it helloworld-nginx -c nginx -- bash
+cat /etc/nginx/conf.d/reverseproxy.conf
+
+#### Ingress
+# Ingress is a solution available since kubernetes 1.1 that allows inbound connections to the cluster
+# alternative to the external LoadBalancer and nodePorts
+## Ingress allows you to easily expose services that need to be accessible from outside to the cluster
+# with Ingress, it's possible to run own ingress controller (basically a loadbalancer) within the kubernetes cluster
+# there's a default Ingress controllers or can write own
+
+minikube create -f ingress/ingress.yml
+minikube create -f ingress/nginx-ingress-controller.yml
+minikube create -f ingress/echoservice.yml
+minikube create -f ingress/helloworld-v1.yml
+minikube create -f ingress/helloworld-v2.yml
+
+minikube ip
+#192.168.99.100
+
+curl 192.168.99.100 -H 'Host: helloworld-v1.example.com'
+curl 192.168.99.100 -H 'Host: helloworld-v2.example.com'
+
+#### Volumes
+# volumes in kubernetes allow to store data outside the container
+# when a container stop, all data on the container itself is lost
+# persistent volumes in kubernetes allow to attach a volume to a container that will exist even when the container stops
+
+
+
+
+
+
 
