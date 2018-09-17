@@ -6,14 +6,25 @@
 ## container in the same pod can connect the port of the other container directly using localhost:port
 # To DNS works, a pod will need a service definition
 
+kubectl create -f service-discovery/secrets.yml
+kubectl create -f service-discovery/database.yml 
+kubectl create -f service-discovery/database-service.yml
+kubectl create -f service-discovery/helloworld-db.yml 
+kubectl create -f service-discovery/helloworld-db-service.yml 
 
+minikube service helloworld-db-service --url
+#http://192.168.99.100:31566
 
+#echo cm9vdHBhc3N3b3Jk | base64 --decode
 
+kubectl exec database -it -- mysql -u root -p
+show databases;
+use helloworld;
+show tables;
+select * from visits;
 
+kubectl run -i --tty busybox --image=busybox --restart=Never -- sh
 
-
-
-
-
+nslookup database-service
 
 
