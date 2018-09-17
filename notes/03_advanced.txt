@@ -111,6 +111,35 @@ curl 192.168.99.100 -H 'Host: helloworld-v2.example.com'
 
 --> workpress-volumes
 
+#### pet sets - alpha
+
+#### daemon sets
+# Daemon Sets ensure that every single node in the kubernetes cluster runs the same pod resource
+## useful if need to ensure that a certain pod is running on every single kubernetes node
+# when a node is added to the cluster, a new pod will be started automatically
+# same when a node is removed, the pod will be be rescheduled on another node
+# use cases
+## logging aggregators
+## monitoring
+## load balancers / reverse proxies / api gateways
+## running a daemon that only needs one instance per physical instance
+
+#### resource usage monitoring
+# Heapster enables container cluster monitoring and performance analysis
+# it provides a monitoring platform for kubernetes
+# prerequsite for doing pod auto-scaling in kubernetes
+# Heapster exports clusters metrics via REST endpoints
+# can use different backends with Heapster
+## InfluxDB, Google Cloud Monitoring/Logging, Kafka ...
+# visuzlizations can be shown using Grafana
+## kubernetes dashboard will also show graphs once monitoring is enabled
+# Heapster, InfluxDB, Grafana can be started in pods
+## yaml files can be found on the github repository of Heapster
+## https://github.com/kubernetes/heapster/tree/master/deploy/kube-config/influxdb
+
+#### auto scaling
+# automatically scale a Deployment, Replication Controller or ReplicaSet
+# in kubernetes 1.3, scaling based on CPU usage is possible out of the box
 
 
 
