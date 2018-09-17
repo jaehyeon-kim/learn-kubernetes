@@ -7,13 +7,13 @@
 # To DNS works, a pod will need a service definition
 
 kubectl create -f service-discovery/secrets.yml
-kubectl create -f service-discovery/database.yml 
+kubectl create -f service-discovery/database.yml
 kubectl create -f service-discovery/database-service.yml
-kubectl create -f service-discovery/helloworld-db.yml 
-kubectl create -f service-discovery/helloworld-db-service.yml 
+kubectl create -f service-discovery/helloworld-db.yml
+kubectl create -f service-discovery/helloworld-db-service.yml
 
 minikube service helloworld-db-service --url
-#http://192.168.99.100:31566
+# http://192.168.99.100:30706
 
 #echo cm9vdHBhc3N3b3Jk | base64 --decode
 
@@ -25,6 +25,46 @@ select * from visits;
 
 kubectl run -i --tty busybox --image=busybox --restart=Never -- sh
 
-nslookup database-service
+#https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/
+kubectl create -f busybox.yml
+
+kubectl exec -it busybox -- nslookup helloworld-db-service
+=====
+Server:    10.96.0.10
+Address 1: 10.96.0.10 kube-dns.kube-system.svc.cluster.local
+
+Name:      helloworld-db-service
+Address 1: 10.109.126.53 helloworld-db-service.default.svc.cluster.local
+=====
+
+kubectl exec -it busybox -- nslookup database-service
+=====
+Server:    10.96.0.10
+Address 1: 10.96.0.10 kube-dns.kube-system.svc.cluster.local
+
+Name:      database-service
+Address 1: 10.98.254.201 database-service.default.svc.cluster.local
+=====
+
+kubectl exec -it busybox -- nslookup kubernetes.default
+kubectl exec -it busybox -- cat /etc/resolve.conf
+
+#### ConfigMap
+# configuration parameters that are not secret, can be put in a ConfigMap
+# key-value pairs that can be read by the app using
+## environment variables
+## container commandline arguments in the pod configuration
+## volumes
+# can also contain full configuration files
+## eg webserver config files
+## can then be mounted using volumes where the app expects its config file
+## can inject configuration settings into containers without changing container itself
+
+cat <<EOF > app.properties
+driver=jdbc
+param.with.hierarchy=foo
+...
+EOF
+kubectl create configmap app-config --from-file=app.properties
 
 
