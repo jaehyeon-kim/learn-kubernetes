@@ -104,8 +104,12 @@ curl 192.168.99.100 -H 'Host: helloworld-v2.example.com'
 # when a container stop, all data on the container itself is lost
 # persistent volumes in kubernetes allow to attach a volume to a container that will exist even when the container stops
 
+# kubernetes plugins have the capacity to provision storage
+## eg) AWS plubin can provision storage by creating volumes in AWS before attaching them to a node
+# used StorageClass object
+## check persistent-volumes documentation
 
-
+--> workpress-volumes
 
 
 
